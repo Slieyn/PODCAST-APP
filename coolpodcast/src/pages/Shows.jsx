@@ -101,7 +101,7 @@ export default function Home() {
                 ))}
             </div>
             {/* Link back to Home page */}
-            <Link to="/">Go back to Home!</Link>
+          <Link to="/" className="home-btn">Go back to Home!</Link>
         </div>
     );
 }

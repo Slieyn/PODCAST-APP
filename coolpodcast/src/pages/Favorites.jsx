@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { FaHeart } from "react-icons/fa"; // Heart icon for favorites
+import { FaHeart, FaTrash } from "react-icons/fa"; // Import Heart and Trash icons
 import Swal from 'sweetalert2'; // Import SweetAlert2 for confirmation popups
 
 const Favorites = () => {
@@ -86,11 +86,8 @@ const Favorites = () => {
                                     </Link>
                                 </p>
                                 {/* Delete button */}
-                                <button
-                                    onClick={() => handleDelete(podcast.id)}
-                                    className="delete-btn"
-                                >
-                                    Delete from Favorites
+                                <button onClick={() => handleDelete(podcast.id)} className="delete-btn">
+                                    <FaTrash className="trash-icon" /> 
                                 </button>
                             </div>
                         </div>
@@ -98,7 +95,7 @@ const Favorites = () => {
                 </div>
             )}
             {/* Link to Shows Page */}
-            <Link to="/">Go back to Home !</Link>
+            <Link to="/" className="home-btn">Go back to Home!</Link>
         </div>
     );
 };
