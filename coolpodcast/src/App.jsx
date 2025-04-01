@@ -5,6 +5,7 @@ import Shows from "./pages/Shows";
 import Favorites from "./pages/Favorites";
 import PodcastDetails from "./pages/PodcastInfo";
 
+
 export default function App() {
   return (
     <Router>
@@ -13,6 +14,7 @@ export default function App() {
           <a href="/" className="site-logo">#COOLPODCAST</a>
           <a href="/shows">Shows</a>
           <a href="/favorite">Favorites</a>
+ 
         </nav>
       </header>
       <Routes>
@@ -20,6 +22,8 @@ export default function App() {
         <Route path="/shows/:podcastId" element={<PodcastDetails />} />
         <Route path="/shows" element={<Shows />} />
         <Route path="/favorite" element={<Favorites />} />
+      
+
       </Routes>
     </Router>
   );
