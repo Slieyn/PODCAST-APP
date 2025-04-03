@@ -140,6 +140,17 @@ header a:hover {
   position: relative;
 }
 
+.podcast-id {
+  font-size: 14px;
+  /* Smaller font size */
+  color: #888;
+  /* Light gray color for the ID */
+  margin-top: 5px;
+  /* Space between the title and the ID */
+  font-style: italic;
+  /* Optional: makes the ID appear in italics */
+}
+
 .podcast-preview:hover {
   transform: translateY(-5px);
   /* Slight hover effect for interactivity */
@@ -371,9 +382,33 @@ header a:hover {
   margin-top: 20px;
 }
 
+/* Style for the 'Back to Home' link */
+.back-home {
+  margin-top: 20px;
+  text-align: right;
+}
+
+.back-home a {
+  font-size: 18px;
+  font-weight: bold;
+  color: #007bff;
+  text-decoration: none;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.back-home a:hover {
+  color: #0056b3;
+  transform: scale(1.05);
+}
+
+.back-home a:focus {
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
 /* Podcast item container */
 .podcast-item {
-  position: relative;
+  position: right;
   background-color: #fff;
   border: 1px solid #ddd;
   border-radius: 10px;

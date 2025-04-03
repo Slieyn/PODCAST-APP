@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { FaHeart, FaTrash } from "react-icons/fa"; // Import Heart and Trash icons
+import { FaHeart } from "react-icons/fa"; // Heart icon for favorites
 import Swal from 'sweetalert2'; // Import SweetAlert2 for confirmation popups
 
 const Favorites = () => {
     const [favorites, setFavorites] = useState([]);
-    const [sortOrder, setSortOrder] = useState("asc"); // For sorting A-Z (ascending)
+    const [sortOrder, setSortOrder] = useState("asc"); // For A-Z sorting (default)
+    const [dateSortOrder, setDateSortOrder] = useState("desc"); // For Most Recent sorting (default)
 
     useEffect(() => {
         // Get favorites from localStorage
@@ -13,18 +14,28 @@ const Favorites = () => {
         setFavorites(storedFavorites);
     }, []);
 
-    // Sort the podcasts based on the selected order (A-Z or Z-A)
+    // Sort the podcasts based on the selected order (A-Z, Z-A, or Most Recent)
     const sortedFavorites = [...favorites].sort((a, b) => {
-        if (sortOrder === "asc") {
-            return a.title.localeCompare(b.title); // Ascending order (A-Z)
+        if (dateSortOrder === "desc") {
+            // Sort by 'updated' in descending order (most recent first)
+            return new Date(b.updated || 0) - new Date(a.updated || 0);
+        } else if (sortOrder === "asc") {
+            // Sort by title in ascending order (A-Z)
+            return a.title.localeCompare(b.title);
         } else {
-            return b.title.localeCompare(a.title); // Descending order (Z-A)
+            // Sort by title in descending order (Z-A)
+            return b.title.localeCompare(a.title);
         }
     });
 
-    // Handle the sorting filter change
+    // Handle the sorting filter change for A-Z or Z-A
     const handleSortChange = (e) => {
         setSortOrder(e.target.value);
+    };
+
+    // Handle the sorting filter change for Most Recent or Oldest
+    const handleDateSortChange = (e) => {
+        setDateSortOrder(e.target.value);
     };
 
     // Handle podcast deletion with confirmation
@@ -48,15 +59,22 @@ const Favorites = () => {
     };
 
     return (
+        
         <div className="favorites-page">
             <h1>Your Favorite Podcasts</h1>
 
-            {/* Filter for A-Z sorting */}
+            {/* Sorting options */}
             <div className="sort-filter">
-                <label htmlFor="sortOrder">Sort A-Z: </label>
+                <label htmlFor="sortOrder">Sort by Title: </label>
                 <select id="sortOrder" value={sortOrder} onChange={handleSortChange}>
                     <option value="asc">A-Z</option>
                     <option value="desc">Z-A</option>
+                </select>
+
+                <label htmlFor="dateSortOrder">Sort by Date Added: </label>
+                <select id="dateSortOrder" value={dateSortOrder} onChange={handleDateSortChange}>
+                    <option value="desc">Most Recent</option>
+                    <option value="asc">Oldest</option>
                 </select>
             </div>
 
@@ -82,20 +100,30 @@ const Favorites = () => {
                                 <p className="podcast-description">{podcast.description}</p>
                                 <p className="podcast-seasons">
                                     <Link to={`/shows/${podcast.id}`}>
-                                        Seasons: {podcast.seasons}
+                                        Seasons: {podcast.seasons.length} {/* ✅ FIXED */}
                                     </Link>
                                 </p>
+                                {/* Show Updated Date */}
+                                <p className="podcast-updated">
+                                    Last Updated: {podcast.updated
+                                        ? new Date(podcast.updated).toLocaleDateString()
+                                        : "No Update Info"}
+                                </p>
                                 {/* Delete button */}
-                                <button onClick={() => handleDelete(podcast.id)} className="delete-btn">
-                                    <FaTrash className="trash-icon" /> 
+                                <button
+                                    onClick={() => handleDelete(podcast.id)}
+                                    className="delete-btn"
+                                >
+                                    Delete from Favorites
                                 </button>
                             </div>
                         </div>
                     ))}
                 </div>
             )}
+
             {/* Link to Shows Page */}
-            <Link to="/" className="home-btn">Go back to Home!</Link>
+            <Link to="/" className="back-home">🏠 Back to Home</Link>
         </div>
     );
 };

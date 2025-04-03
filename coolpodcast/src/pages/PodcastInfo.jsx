@@ -1,58 +1,89 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { podcasts } from "../utils/Data"; // Import static data
 
 export default function PodcastInfo() {
-  const { podcastId } = useParams(); // Get podcast ID from URL
-  const [episodes, setEpisodes] = useState([]);
+  const { podcastId } = useParams();
+  const [podcast, setPodcast] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [playingEpisode, setPlayingEpisode] = useState(null);
+  const [audio, setAudio] = useState(null);
+  const [speechSynthesisUtterance, setSpeechSynthesisUtterance] = useState(null);
 
   useEffect(() => {
-    // Find the selected podcast from static data
-    const podcast = podcasts.find((podcast) => podcast.id === podcastId);
+    const fetchPodcast = async () => {
+      try {
+        const response = await fetch(`https://podcast-api.netlify.app/id/${podcastId}`);
+        if (!response.ok) throw new Error("Failed to fetch podcast data");
 
-    if (podcast) {
-      // Simulate fetching episodes
-      setEpisodes(podcast.episodes || []); // Assuming episodes are inside the podcast object
-      setLoading(false);
-    } else {
-      setError("Podcast not found.");
-      setLoading(false);
-    }
+        const data = await response.json();
+        setPodcast(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPodcast();
   }, [podcastId]);
 
-  // Play selected episode
-  const playEpisode = (episodeId) => {
-    setPlayingEpisode(episodeId);
+  // Function to play episode audio & read description
+  const playEpisode = (episode) => {
+    // Stop any currently playing audio
+    if (audio) {
+      audio.pause();
+      setAudio(null);
+    }
+
+    // Stop any ongoing speech
+    if (speechSynthesisUtterance) {
+      window.speechSynthesis.cancel();
+      setSpeechSynthesisUtterance(null);
+    }
+
+    // Play new episode audio
+    const newAudio = new Audio(episode.audioUrl);
+    newAudio.play();
+    setAudio(newAudio);
+
+    // Read episode description
+    if (episode.description) {
+      const utterance = new SpeechSynthesisUtterance(episode.description);
+      window.speechSynthesis.speak(utterance);
+      setSpeechSynthesisUtterance(utterance);
+    }
+
+    setPlayingEpisode(episode.id);
   };
 
   return (
     <div className="podcast-details">
-      <h1>Podcast Episodes</h1>
-
       {loading && <p>Loading...</p>}
       {error && <p className="error">{error}</p>}
 
-      {!loading && !error && episodes.length > 0 ? (
-        <ul className="episode-list">
-          {episodes.map((episode) => (
-            <li key={episode.id} onClick={() => playEpisode(episode.id)}>
-              <h3>{episode.title}</h3>
-              
-              {/* Show audio player if clicked */}
-              {playingEpisode === episode.id && (
-                <audio controls autoPlay>
-                  <source src={episode.audioUrl} type="audio/mpeg" />
-                  Your browser does not support the audio element.
-                </audio>
-              )}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        !loading && <p>No episodes found.</p>
+      {podcast && (
+        <>
+          <h1>{podcast.title}</h1>
+          <img src={podcast.image} alt={podcast.title} className="podcast-image" />
+          <p>{podcast.description}</p>
+
+          <h2>Episodes</h2>
+          {podcast.episodes && podcast.episodes.length > 0 ? (
+            <ul className="episode-list">
+              {podcast.episodes.map((episode) => (
+                <li key={episode.id}>
+                  <h3>{episode.title}</h3>
+                  <button onClick={() => playEpisode(episode)}>
+                    {playingEpisode === episode.id ? "Playing..." : "▶ Play"}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No episodes found.</p>
+          )}
+        </>
       )}
     </div>
   );

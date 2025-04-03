@@ -1,37 +1,35 @@
-import React, { useState } from "react";
-import { podcasts } from "../utils/Data"; // Import your podcast data
-import { filterPodcasts } from "./filterPodcasts"; // Import the filter function
-import { Link } from "react-router-dom"; // For linking to the Shows page
+import React, { useState, useEffect } from "react";
+import { podcasts } from "../utils/Data"; // Ensure your data structure includes description and seasons
+import { filterPodcasts } from "../pages/filterPodcasts";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Home() {
     const [filteredPodcasts, setFilteredPodcasts] = useState(podcasts);
-    const [filters, setFilters] = useState({
-        genre: "any",
-        title: ""
-    });
+    const [filters, setFilters] = useState({ genre: "any", title: "" });
+    const [favorites, setFavorites] = useState([]);
+    const navigate = useNavigate();
 
-    // State to manage whether the description is expanded or collapsed
-    const [isExpanded, setIsExpanded] = useState(false);
-
-    // Truncate description to 100 characters (if it's longer than that)
-    const truncatedDescription = (description) => {
-        return description.length > 100 ? description.substring(0, 100) + "..." : description;
-    };
+    useEffect(() => {
+        const storedFavorites = JSON.parse(localStorage.getItem("favorites")) || [];
+        setFavorites(storedFavorites);
+    }, []);
 
     const handleSearch = (event) => {
         event.preventDefault();
         const formData = new FormData(event.target);
         const newFilters = Object.fromEntries(formData);
         setFilters(newFilters);
-
-        // Apply the filters
         const matches = filterPodcasts(podcasts, newFilters);
         setFilteredPodcasts(matches);
     };
 
     return (
         <div className="home-page">
-            {/* Search Filter Form */}
+            {/* Back to Home Link */}
+            <div className="back-home">
+                <Link to="/">Back to Home</Link>
+            </div>
+
             <form onSubmit={handleSearch} className="search-form">
                 <input
                     type="text"
@@ -56,52 +54,25 @@ export default function Home() {
             {/* Podcast List */}
             <div className="podcast-list">
                 {filteredPodcasts.map((podcast) => (
-                    <div className="podcast-item" key={podcast.id}>
-                        <img
-                            src={podcast.image}
-                            alt={`${podcast.title} cover`}
-                            className="podcast-image"
-                        />
+                    <div
+                        className="podcast-item"
+                        key={podcast.id}
+                        onClick={() => navigate(`/shows/${podcast.id}`)}
+                        style={{ cursor: "pointer" }}
+                    >
                         <div className="podcast-info">
                             <h2 className="podcast-title">{podcast.title}</h2>
-                            {/* Show description with read more functionality */}
-                            <p className="podcast-description">
-                                {isExpanded ? podcast.description : truncatedDescription(podcast.description)}
-                                {podcast.description.length > 100 && (
-                                    <button
-                                        onClick={() => setIsExpanded(!isExpanded)} // Toggle between expanded/collapsed state
-                                        className="read-more-btn"
-                                    >
-                                        {isExpanded ? "Read Less" : "Read More"}
-                                    </button>
-                                )}
-                            </p>
-                            {/* Show Seasons */}
+                            {/* Display the Podcast ID */}
+                            <p className="podcast-id">ID: {podcast.id}</p>
+                            <p className="podcast-description">{podcast.description}</p>
                             <p className="podcast-seasons">
-                                <Link to={`/shows/${podcast.id}`}>
-                                    Seasons: {podcast.seasons}
-                                </Link>
+                                {/* Display the number of seasons */}
+                                <Link to={`/shows/${podcast.id}`}>Seasons: {podcast.seasons.length}</Link>
                             </p>
-                            {/* Show Genres */}
-                            <div className="podcast-genres">
-                                {podcast.genres.map((genreId) => (
-                                    <span className="genre" key={genreId}>
-                                        {genreId === 1
-                                            ? "True Crime"
-                                            : genreId === 2
-                                                ? "Storytelling"
-                                                : "History"}
-                                    </span>
-                                ))}
-                            </div>
-                            {/* Show Updated Date */}
-                            <p className="podcast-updated">{new Date(podcast.updated).toLocaleDateString()}</p>
                         </div>
                     </div>
                 ))}
             </div>
-            {/* Link back to Home page */}
-          <Link to="/" className="home-btn">Go back to Home!</Link>
         </div>
     );
 }

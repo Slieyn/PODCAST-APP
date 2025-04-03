@@ -1,36 +1,47 @@
-import { useParams } from "react-router-dom";
-import { useEffect, useState, useContext } from "react";
-import { AudioPlayerContext } from "./AudioPlayerContext";
-import { podcasts } from "../utils/Data"; // Import your podcast data
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 
 function EpisodeDetail() {
-  const { id } = useParams();
-  const [episode, setEpisode] = useState(null);
-  const { setCurrentEpisode } = useContext(AudioPlayerContext);
+    const { id, episodeId } = useParams();  // Get podcast and episode IDs from the URL
+    const [episode, setEpisode] = useState(null);
 
-  useEffect(() => {
-    // Find the episode based on the ID from the URL params
-    const foundEpisode = podcasts.find((ep) => ep.id === parseInt(id)); // Make sure the id is compared correctly
-    if (foundEpisode) {
-      setEpisode(foundEpisode);
-    } else {
-      console.error("Episode not found");
+    useEffect(() => {
+        // Fetch podcast data using the API endpoint
+        fetch(`https://podcast-api.netlify.app/id/${id}`)  // Fetch podcast details by `id`
+            .then((response) => response.json())
+            .then((data) => {
+                // Assuming the data returned includes seasons and episodes directly
+                const podcast = data;  // The entire podcast object
+
+                // Find the specific episode by episodeId
+                const episode = podcast.episodes.find((ep) => ep.id === episodeId);
+                setEpisode(episode);  // Set the specific episode to state
+            })
+            .catch((error) => console.error('Error fetching episode data:', error));
+    }, [id, episodeId]);
+
+    // Ensure that episode is loaded before rendering
+    if (!episode) {
+        return <p>Loading episode...</p>;
     }
-  }, [id]);
 
-  if (!episode) return <p>Loading...</p>;
+    return (
+        <div className="episode-detail">
+            <h2>{episode.title}</h2>
+            <p>{episode.description}</p>
+            <img src={episode.image} alt={episode.title} style={{ width: '100%', maxHeight: '400px', objectFit: 'cover' }} />
 
-  return (
-    <div>
-      <h2>{episode.title}</h2>
-      <p>{episode.description}</p>
-      <audio controls>
-        <source src={episode.audio} type="audio/mp3" />
-        Your browser does not support the audio element.
-      </audio>
-      <button onClick={() => setCurrentEpisode(episode)}>Play Episode</button>
-    </div>
-  );
+            {/* Check if the episode has audio before rendering the audio player */}
+            {episode.audio ? (
+                <audio controls>
+                    <source src={episode.audio} type="audio/mp3" />
+                    Your browser does not support the audio element.
+                </audio>
+            ) : (
+                <p>Audio not available for this episode.</p>
+            )}
+        </div>
+    );
 }
 
 export default EpisodeDetail;
