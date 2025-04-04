@@ -4,6 +4,7 @@ import { filterPodcasts } from "../pages/filterPodcasts";
 import { Link } from "react-router-dom";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 
+
 export default function Home() {
     const [filteredPodcasts, setFilteredPodcasts] = useState(podcasts);
     const [filters, setFilters] = useState({ genre: "any", title: "" });

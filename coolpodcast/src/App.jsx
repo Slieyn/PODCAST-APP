@@ -10,6 +10,7 @@ import EpisodeList from "./pages/EpisodeList";
 import AudioPlayer from "./pages/AudioPlayer";
 import { AudioPlayerProvider } from "./pages/AudioPlayerContext";
 
+
 export default function App() {
   return (
     <AudioPlayerProvider> {/* ✅ Moved AudioPlayerProvider to wrap Router */}
@@ -19,7 +20,7 @@ export default function App() {
             <Link to="/" className="site-logo">#COOLPODCAST</Link>
             <Link to="/shows">Shows</Link>
             <Link to="/favorite">Favorites</Link>
-            <Link to={`/podcast/:id/episode/:episodeId`}> Seasons </Link>
+            <Link to="/seasons"> Seasons </Link>
 
 
           </nav>
@@ -32,7 +33,8 @@ export default function App() {
           <Route path="/favorite" element={<Favorites />} />
           <Route path="/episodes" element={<EpisodeList />} />
           <Route path="/episode/:id" element={<EpisodeDetail episode={EpisodeDetail} />} />
-          <Route path="/podcast/:id/seasons" element={<Seasons />} />
+          <Route path="/seasons" element={<Seasons />} />
+        
 
 
         </Routes>

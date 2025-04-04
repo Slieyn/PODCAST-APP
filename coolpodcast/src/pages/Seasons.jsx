@@ -1,59 +1,45 @@
-import { useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import React, { useState, useEffect } from "react";
+import { Link, useParams } from "react-router-dom"; // We'll use useParams to get the podcast ID
+import { podcasts } from "../utils/Data"; // Import your data
 
-function Seasons() {
-    const { id } = useParams(); // Get podcast ID from URL
-    const [podcast, setPodcast] = useState(null);
-    const [loading, setLoading] = useState(true);
+export default function SeasonsPage() {
+    const { podcastId } = useParams(); // Get podcastId from URL
+    const [seasons, setSeasons] = useState([]);
 
     useEffect(() => {
-        const fetchPodcastData = async () => {
-            try {
-                const response = await fetch(`https://podcast-api.netlify.app/id/${id}`);
-                const data = await response.json();
-                setPodcast(data); // Save podcast data to state
-            } catch (error) {
-                console.error("Error fetching podcast data:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
+        // Find the podcast from the podcasts data
+        const podcast = podcasts.find((podcast) => podcast.id === podcastId);
 
-        fetchPodcastData();
-    }, [id]);
-
-    if (loading) return <p>Loading...</p>;
-    if (!podcast) return <p>No podcast found</p>;
+        if (podcast) {
+            // Set the seasons of the found podcast
+            setSeasons(podcast.seasons || []); // Assuming seasons is an array inside podcast
+        }
+    }, [podcastId]);
 
     return (
-        <div>
-            <h1>{podcast.title}</h1>
-            <img src={podcast.image} alt={podcast.title} style={{ width: '100%', maxHeight: '400px', objectFit: 'cover' }} />
-            <p>{podcast.description}</p>
+        <div className="seasons-page">
+            <h1>Seasons for Podcast {podcastId}</h1>
 
-            {/* Render seasons */}
-            {podcast.seasons && podcast.seasons.map((season) => (
-                <div key={season.id} className="season">
-                    <h2>Season {season.number}: {season.title}</h2>
-                    <img src={season.image} alt={season.title} style={{ width: '100%', maxHeight: '200px', objectFit: 'cover' }} />
-
-                    {/* Render episodes for this season */}
-                    {season.episodes && season.episodes.map((episode) => (
-                        <div key={episode.id} className="episode">
-                            <h3>{episode.title}</h3>
-                            <p>{episode.description}</p>
-
-                            {/* Audio player */}
-                            <audio controls>
-                                <source src={episode.audio} type="audio/mp3" />
-                                Your browser does not support the audio element.
-                            </audio>
+            <div className="seasons-list">
+                {seasons.length > 0 ? (
+                    seasons.map((season) => (
+                        <div className="season-item" key={season.id}>
+                            <img
+                                src={season.image}
+                                alt={season.title}
+                                className="season-image"
+                            />
+                            <h3>{season.title}</h3>
+                            <p>Season ID: {season.id}</p>
+                            <Link to={`/episodes/${season.id}`} className="season-link">
+                                View Episodes
+                            </Link>
                         </div>
-                    ))}
-                </div>
-            ))}
+                    ))
+                ) : (
+                    <p>No seasons available.</p>
+                )}
+            </div>
         </div>
     );
 }
-
-export default Seasons;
