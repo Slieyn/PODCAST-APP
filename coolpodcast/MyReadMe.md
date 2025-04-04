@@ -6,7 +6,11 @@
 ## Introduction
 This project is a podcast application that allows users to browse podcasts, listen to episodes, and add podcasts to their favorites list. The application utilizes data from external podcast APIs and includes features like sorting, filtering.
 
+
 ## Features
+ * When the user wants to listen to the podaast, they can click on the nav bar with podcasts and view episodes, they 
+ can also view them by clicking the seasons on the home page, that will lead them to the episodes page. 
+
  * Browse podcasts by genre or title.
 
 * Play audio episodes directly in the app.
