@@ -1,16 +1,33 @@
+// Import necessary modules from React and React Router
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
+/**
+ * PodcastsList component displays a list of podcasts with filtering options.
+ * Users can search by title, filter by genre, and toggle full descriptions.
+ * @returns {JSX.Element} The PodcastsList component.
+ */
 export default function PodcastsList() {
+    // State to store the fetched podcasts
     const [podcasts, setPodcasts] = useState([]);
+
+    // State to store the currently filtered list of podcasts
     const [filteredPodcasts, setFilteredPodcasts] = useState([]);
+
+    // State to handle loading and error messages
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [selectedGenre, setSelectedGenre] = useState("all");
-    const [searchQuery, setSearchQuery] = useState(""); // For title filter
-    const [readMoreState, setReadMoreState] = useState({}); // For toggling "Read More" for each podcast
 
-    // Fetch podcasts data
+    // State for search and filtering
+    const [selectedGenre, setSelectedGenre] = useState("all");
+    const [searchQuery, setSearchQuery] = useState("");
+
+    // State for managing "Read More" toggles per podcast
+    const [readMoreState, setReadMoreState] = useState({});
+
+    /**
+     * Fetches the podcast data from an API on component mount.
+     */
     useEffect(() => {
         const fetchPodcasts = async () => {
             try {
@@ -18,7 +35,7 @@ export default function PodcastsList() {
                 if (!response.ok) throw new Error("Failed to fetch podcasts data");
                 const data = await response.json();
                 setPodcasts(data);
-                setFilteredPodcasts(data); // Initial filter state (no genre filter or title filter)
+                setFilteredPodcasts(data); // Set initial state
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -28,31 +45,42 @@ export default function PodcastsList() {
         fetchPodcasts();
     }, []);
 
-    // Filter podcasts by genre and title
+    /**
+     * Filters podcasts based on selected genre and search query.
+     */
     const handleFilterChange = () => {
         const filtered = podcasts.filter((podcast) => {
             const matchesGenre =
-                selectedGenre === "all" || podcast.genres.includes(parseInt(selectedGenre)); // Filter by genre
+                selectedGenre === "all" || podcast.genres.includes(parseInt(selectedGenre));
             const matchesTitle =
-                podcast.title.toLowerCase().includes(searchQuery.toLowerCase()); // Filter by title
+                podcast.title.toLowerCase().includes(searchQuery.toLowerCase());
 
-            return matchesGenre && matchesTitle; // Only include podcasts that match both filters
+            return matchesGenre && matchesTitle; // Return podcasts that match both criteria
         });
 
         setFilteredPodcasts(filtered);
     };
 
-    // Handle genre selection change
+    /**
+     * Handles changes in the genre selection dropdown.
+     * @param {React.ChangeEvent<HTMLSelectElement>} event - The change event from the select element.
+     */
     const handleGenreChange = (event) => {
         setSelectedGenre(event.target.value);
     };
 
-    // Handle search input change for title filter
+    /**
+     * Handles changes in the search input for filtering by title.
+     * @param {React.ChangeEvent<HTMLInputElement>} event - The change event from the input element.
+     */
     const handleSearchChange = (event) => {
         setSearchQuery(event.target.value);
     };
 
-    // Toggle "Read More" for description
+    /**
+     * Toggles the "Read More" state for a given podcast.
+     * @param {string} podcastId - The ID of the podcast to toggle.
+     */
     const toggleDescription = (podcastId) => {
         setReadMoreState((prev) => ({
             ...prev,
@@ -60,7 +88,12 @@ export default function PodcastsList() {
         }));
     };
 
-    // Render read more/less button
+    /**
+     * Renders the podcast description with a "Read More/Less" toggle.
+     * @param {string} description - The full podcast description.
+     * @param {string} podcastId - The ID of the podcast.
+     * @returns {JSX.Element} Description paragraph with toggle button.
+     */
     const renderDescription = (description, podcastId) => {
         const isReadMore = readMoreState[podcastId];
         const truncatedDescription = description.substring(0, 150) + "...";
@@ -75,14 +108,17 @@ export default function PodcastsList() {
         );
     };
 
+    // Re-run filtering whenever the genre or search query changes
     useEffect(() => {
         handleFilterChange();
-    }, [selectedGenre, searchQuery]); // Re-run filter whenever genre or search query changes
+    }, [selectedGenre, searchQuery]);
 
+    // Show loading state
     if (loading) {
         return <p>Loading...</p>;
     }
 
+    // Show error message if fetching failed
     if (error) {
         return <p className="error">{error}</p>;
     }
@@ -100,6 +136,7 @@ export default function PodcastsList() {
                     }}
                     className="search-form"
                 >
+                    {/* Search by Title */}
                     <input
                         type="text"
                         name="title"
@@ -107,17 +144,16 @@ export default function PodcastsList() {
                         value={searchQuery}
                         onChange={handleSearchChange}
                     />
-                    <select
-                        name="genre"
-                        value={selectedGenre}
-                        onChange={handleGenreChange}
-                    >
+
+                    {/* Genre Selection Dropdown */}
+                    <select name="genre" value={selectedGenre} onChange={handleGenreChange}>
                         <option value="all">All Genres</option>
                         <option value="1">True Crime</option>
                         <option value="2">Storytelling</option>
                         <option value="3">History</option>
-                        {/* Add more genres dynamically if necessary */}
+                        {/* More genres can be added dynamically */}
                     </select>
+
                     <button type="submit">Search</button>
                 </form>
             </div>
@@ -126,16 +162,21 @@ export default function PodcastsList() {
             <div className="cool-preview">
                 {filteredPodcasts.length > 0 ? (
                     filteredPodcasts.map((podcast) => (
-                        <div key={podcast.id} className="card-image">
+                        <div key={podcast.id} className="card">
+                            {/* Podcast Cover Image */}
                             <img
                                 src={podcast.image || "https://via.placeholder.com/150"}
                                 alt={podcast.title}
                                 className="card-image"
                             />
+
+                            {/* Podcast Title */}
                             <h3>{podcast.title}</h3>
 
+                            {/* Podcast Description with Read More/Less Toggle */}
                             {renderDescription(podcast.description, podcast.id)}
 
+                            {/* Link to Podcast Episodes */}
                             <Link to={`/shows/${podcast.id}`} className="view-details-link">
                                 View Episodes
                             </Link>

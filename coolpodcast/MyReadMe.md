@@ -1,4 +1,8 @@
 ### Podcast App
+
+## Link to my Netlify
+* https://coolpodcastbysilindo.netlify.app/
+
 ## Introduction
 This project is a podcast application that allows users to browse podcasts, listen to episodes, and add podcasts to their favorites list. The application utilizes data from external podcast APIs and includes features like sorting, filtering.
 
