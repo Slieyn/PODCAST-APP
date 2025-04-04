@@ -3,24 +3,42 @@ import { podcasts } from "../utils/Data";
 import { filterPodcasts } from "../pages/filterPodcasts";
 import { Link } from "react-router-dom";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
-
+import { applyTheme } from "../Components/Theme";
 
 export default function Home() {
     const [filteredPodcasts, setFilteredPodcasts] = useState(podcasts);
     const [filters, setFilters] = useState({ genre: "any", title: "" });
+    const [sortOrder, setSortOrder] = useState("asc"); // Default: A-Z Sorting
     const [favorites, setFavorites] = useState([]);
+
+    useEffect(() => {
+        applyTheme(); // ✅ Ensures theme is applied correctly
+    }, []);
 
     useEffect(() => {
         const storedFavorites = JSON.parse(localStorage.getItem("favorites")) || [];
         setFavorites(storedFavorites);
     }, []);
 
+    // Apply filters and sorting together
+    useEffect(() => {
+        let filtered = filterPodcasts(podcasts, filters);
+
+        // Apply sorting
+        filtered.sort((a, b) => {
+            return sortOrder === "asc"
+                ? a.title.localeCompare(b.title) // A-Z
+                : b.title.localeCompare(a.title); // Z-A
+        });
+
+        setFilteredPodcasts(filtered);
+    }, [filters, sortOrder]);
+
     const handleSearch = (event) => {
         event.preventDefault();
         const formData = new FormData(event.target);
         const newFilters = Object.fromEntries(formData);
         setFilters(newFilters);
-        setFilteredPodcasts(filterPodcasts(podcasts, newFilters));
     };
 
     const toggleFavorite = (podcast) => {
@@ -39,28 +57,39 @@ export default function Home() {
 
     return (
         <div className="home-page">
+            {/* Search & Sorting Bar */}
+            <div className="search-bar">
+                <form onSubmit={handleSearch} className="search-form">
+                    <input
+                        type="text"
+                        name="title"
+                        placeholder="Search by title"
+                        value={filters.title}
+                        onChange={(e) => setFilters({ ...filters, title: e.target.value })}
+                    />
+                    <select
+                        name="genre"
+                        value={filters.genre}
+                        onChange={(e) => setFilters({ ...filters, genre: e.target.value })}
+                    >
+                        <option value="any">All Genres</option>
+                        <option value="1">True Crime</option>
+                        <option value="2">Storytelling</option>
+                        <option value="3">History</option>
+                    </select>
+                    <button type="submit">Search</button>
+                </form>
 
-            {/* Search Filter Form */}
-            <form onSubmit={handleSearch} className="search-form">
-                <input
-                    type="text"
-                    name="title"
-                    placeholder="Search by title"
-                    value={filters.title}
-                    onChange={(e) => setFilters({ ...filters, title: e.target.value })}
-                />
+                {/* Sorting Dropdown */}
                 <select
-                    name="genre"
-                    value={filters.genre}
-                    onChange={(e) => setFilters({ ...filters, genre: e.target.value })}
+                    className="sort-dropdown"
+                    value={sortOrder}
+                    onChange={(e) => setSortOrder(e.target.value)}
                 >
-                    <option value="any">All Genres</option>
-                    <option value="1">True Crime</option>
-                    <option value="2">Storytelling</option>
-                    <option value="3">History</option>
+                    <option value="asc">Sort A-Z</option>
+                    <option value="desc">Sort Z-A</option>
                 </select>
-                <button type="submit">Search</button>
-            </form>
+            </div>
 
             {/* Podcast List */}
             <div className="podcast-list">
@@ -76,7 +105,7 @@ export default function Home() {
                                 <h2 className="podcast-title">{podcast.title}</h2>
                                 <p className="podcast-seasons">
                                     <Link to={`/shows/${podcast.id}`}>
-                                        Seasons: {Array.isArray(podcast.seasons) ? podcast.seasons.length : 0}
+                                        Seasons: Explore episodes {Array.isArray(podcast.seasons) ? podcast.seasons.length : 0}
                                     </Link>
                                 </p>
                                 <p className="podcast-updated">

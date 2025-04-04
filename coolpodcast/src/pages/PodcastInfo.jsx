@@ -1,23 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { podcasts } from "../utils/Data";
+
 
 export default function PodcastInfo() {
   const { podcastId } = useParams();
   const [podcast, setPodcast] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [playingEpisode, setPlayingEpisode] = useState(null);
+  const [playingEpisodeId, setPlayingEpisodeId] = useState(null); // Track which episode is playing
   const [audio, setAudio] = useState(null);
   const [speechSynthesisUtterance, setSpeechSynthesisUtterance] = useState(null);
 
   useEffect(() => {
     const fetchPodcast = async () => {
       try {
-        const response = await fetch(`https://podcast-api.netlify.app/id/${podcastId}`);
-        if (!response.ok) throw new Error("Failed to fetch podcast data");
+        // Fetching the podcast data from your local 'podcasts' array
+        const podcastData = podcasts.find(podcast => podcast.id === podcastId);
+        if (!podcastData) throw new Error("Podcast not found");
 
-        const data = await response.json();
-        setPodcast(data);
+        setPodcast(podcastData);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -29,7 +31,7 @@ export default function PodcastInfo() {
   }, [podcastId]);
 
   // Function to play episode audio & read description
-  const playEpisode = (episode) => {
+  const playEpisodes = (episode) => {
     // Stop any currently playing audio
     if (audio) {
       audio.pause();
@@ -43,7 +45,7 @@ export default function PodcastInfo() {
     }
 
     // Play new episode audio
-    const newAudio = new Audio(episode.audioUrl);
+    const newAudio = new Audio(episode.audio); // Use 'audio' field from your data
     newAudio.play();
     setAudio(newAudio);
 
@@ -54,7 +56,7 @@ export default function PodcastInfo() {
       setSpeechSynthesisUtterance(utterance);
     }
 
-    setPlayingEpisode(episode.id);
+    setPlayingEpisodeId(episode.id);
   };
 
   return (
@@ -70,12 +72,11 @@ export default function PodcastInfo() {
 
           <h2>Episodes</h2>
           {podcast.episodes && podcast.episodes.length > 0 ? (
-            <ul className="episode-list">
+            <ul className="episodes-list">
               {podcast.episodes.map((episode) => (
                 <li key={episode.id}>
-                  <h3>{episode.title}</h3>
-                  <button onClick={() => playEpisode(episode)}>
-                    {playingEpisode === episode.id ? "Playing..." : "▶ Play"}
+                  <button onClick={() => playEpisodes(episode)}>
+                    {playingEpisodeId === episode.id ? "Playing..." : "▶ Play"}
                   </button>
                 </li>
               ))}

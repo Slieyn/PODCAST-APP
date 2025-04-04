@@ -136,6 +136,7 @@ header a:hover {
   overflow: hidden;
 }
 
+
 .preview-container {
   position: relative;
 }
@@ -297,7 +298,10 @@ header a:hover {
 .home-page {
   font-family: 'Arial', sans-serif;
   padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
   background-color: #f4f4f4;
+
 }
 
 .home-title {
@@ -375,12 +379,100 @@ header a:hover {
 }
 
 /* Podcast list styling */
+/* Styling for the podcast listing page */
 .podcast-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 20px;
-  margin-top: 20px;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
+
+/*All Podcasts css*/
+.cool-preview {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  justify-items: center;
+}
+
+.card-image {
+  width: 100%;
+  height: auto;
+  border-bottom: 2px solid #eee;
+}
+
+.cool-list {
+  font-size: 36px;
+  margin-bottom: 20px;
+  color: #333;
+  text-align: center;
+}
+
+.podcast-list h1 {
+  font-size: 36px;
+  margin-bottom: 20px;
+  color: #333;
+  text-align: center;
+}
+
+.podcast-preview {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  justify-items: center;
+}
+
+.podcast-card {
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  width: 100%;
+  max-width: 320px;
+}
+
+.podcast-card:hover {
+  transform: translateY(-5px);
+}
+
+.podcast-image {
+  width: 100%;
+  height: auto;
+  border-bottom: 2px solid #eee;
+}
+
+.podcast-card h3 {
+  font-size: 22px;
+  margin: 15px;
+}
+
+.podcast-card p {
+  font-size: 16px;
+  margin: 0 15px;
+  color: #555;
+}
+
+.view-details-link {
+  display: block;
+  padding: 10px 15px;
+  text-align: center;
+  background-color: #2196F3;
+  color: white;
+  font-size: 16px;
+  text-decoration: none;
+  border-radius: 5px;
+  margin: 15px;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.view-details-link:hover {
+  background-color: #0b7dda;
+}
+
 
 /* Style for the 'Back to Home' link */
 .back-home {
@@ -459,18 +551,55 @@ header a:hover {
 
 
 /*read-more*/
-.read-more-btn {
-  font-family: 'Arial', sans-serif;
-  background-color: transparent;
-  color: #106bd4;
-  border: none;
-  cursor: pointer;
-  text-decoration: underline;
-  padding: 0;
+/* Styling for the description and "Read More" button */
+.podcast-card {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
 }
 
-.read-more-btn:hover {
-  text-decoration: none;
+h3 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+p {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.6;
+}
+
+button {
+  font-size: 0.9rem;
+  color: #888;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px 10px;
+  transition: color 0.3s;
+}
+
+button:hover {
+  color: #007bff;
+  /* Hover effect color */
+}
+
+/* Styling for Read More / Read Less state */
+button:focus {
+  outline: none;
+}
+
+.read-more {
+  color: #666;
+  font-weight: 600;
+}
+
+/* Optional: add a margin between description text and button */
+.read-more+button {
+  margin-top: 10px;
 }
 
 .preview-title {
@@ -518,25 +647,74 @@ header a:hover {
   margin-bottom: 10px;
 }
 
-/* Global theme variables */
+
+/*Theme*/
+/* Default background and text colors (light theme by default) */
 :root {
-  --color-background: rgb(200, 200, 200)
-    /* Default light mode background */
-    --color-text: rgb(10, 10, 20);
-  /* Default text color */
+  --color-background: rgb(255, 255, 255);
+  --color-text: rgb(10, 10, 20);
   --color-button: rgb(200, 200, 200);
-  /* Default button color */
 }
 
+
+[data-theme="night"] {
+  --color-background: rgb(10, 10, 20);
+  --color-text: rgb(255, 255, 255);
+  --color-button: rgb(30, 30, 50);
+}
+
+/* Apply theme changes based on CSS variables */
 body {
   background-color: var(--color-background);
   color: var(--color-text);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-button {
+button,
+.favorite-btn {
   background-color: var(--color-button);
-  color: var(--color-text);
+  color: white;
 }
+
+a {
+  color: var(--color-link);
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Dark mode theme */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: #121212;
+    --color-text: #ffffff;
+    --color-button: #3700b3;
+    --color-link: #bb86fc;
+  }
+}
+
+.theme-toggle-container {
+  margin-left: auto;
+  padding: auto;
+}
+
+.theme-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.5rem;
+  transition: transform 0.2s ease-in-out;
+}
+
+.theme-toggle:hover {
+  transform: scale(1.1);
+}
+
+
+
+/* Optional: Add any additional theme-specific styles for elements */
+
 
 .search-form {
   display: flex;

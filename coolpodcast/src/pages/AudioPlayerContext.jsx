@@ -1,20 +1,35 @@
-import { createContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { podcasts } from '../utils/Data'; // Assuming podcasts data is available here
 
-// Create a context for the audio player
-export const AudioPlayerContext = createContext();
+const AudioPlayerContext = createContext();
 
-export function AudioPlayerProvider({ children }) {
-  // State to track the currently selected episode
-  const [currentEpisode, setCurrentEpisode] = useState(null);
-  
-  // State to track whether the audio is playing or paused
-  const [isPlaying, setIsPlaying] = useState(false);
+export const useAudioPlayer = () => useContext(AudioPlayerContext);
+
+export const AudioPlayerProvider = ({ children }) => {
+  const [currentEpisode, setCurrentEpisode] = useState(() => {
+    // Try to get the last played episode from localStorage
+    const savedEpisode = JSON.parse(localStorage.getItem('currentEpisode'));
+    return savedEpisode || null;
+  });
+
+  const playEpisode = (episodeId) => {
+    // Find the episode by ID from the podcasts data
+    const episode = podcasts.flatMap(podcast => podcast.episodes).find(ep => ep.id === episodeId);
+
+    if (episode) {
+      setCurrentEpisode(episode);
+      localStorage.setItem('currentEpisode', JSON.stringify(episode)); // Save the episode in localStorage
+    }
+  };
+
+  const pauseEpisode = () => {
+    setCurrentEpisode(null);
+    localStorage.removeItem('currentEpisode'); // Remove the current episode from localStorage
+  };
 
   return (
-    <AudioPlayerContext.Provider 
-      value={{ currentEpisode, setCurrentEpisode, isPlaying, setIsPlaying }}
-    >
+    <AudioPlayerContext.Provider value={{ currentEpisode, playEpisode, pauseEpisode }}>
       {children}
     </AudioPlayerContext.Provider>
   );
-}
+};

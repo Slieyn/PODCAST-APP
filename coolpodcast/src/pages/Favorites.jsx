@@ -2,11 +2,16 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FaHeart } from "react-icons/fa"; // Heart icon for favorites
 import Swal from 'sweetalert2'; // Import SweetAlert2 for confirmation popups
+import { applyTheme } from "../Components/Theme";
 
 const Favorites = () => {
     const [favorites, setFavorites] = useState([]);
     const [sortOrder, setSortOrder] = useState("asc"); // For A-Z sorting (default)
     const [dateSortOrder, setDateSortOrder] = useState("desc"); // For Most Recent sorting (default)
+
+    useEffect(() => {
+        applyTheme(); // ✅ Ensures the theme is applied when navigating to this page
+    }, []);
 
     useEffect(() => {
         // Get favorites from localStorage
@@ -59,7 +64,7 @@ const Favorites = () => {
     };
 
     return (
-        
+
         <div className="favorites-page">
             <h1>Your Favorite Podcasts</h1>
 

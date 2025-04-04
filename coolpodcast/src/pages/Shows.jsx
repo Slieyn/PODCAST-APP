@@ -2,12 +2,17 @@ import React, { useState, useEffect } from "react";
 import { podcasts } from "../utils/Data"; // Ensure your data structure includes description and seasons
 import { filterPodcasts } from "../pages/filterPodcasts";
 import { Link, useNavigate } from "react-router-dom";
+import { applyTheme } from "../Components/Theme";
 
 export default function Home() {
     const [filteredPodcasts, setFilteredPodcasts] = useState(podcasts);
     const [filters, setFilters] = useState({ genre: "any", title: "" });
     const [favorites, setFavorites] = useState([]);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        applyTheme(); // ✅ Ensures the theme is applied when navigating to this page
+    }, []);
 
     useEffect(() => {
         const storedFavorites = JSON.parse(localStorage.getItem("favorites")) || [];
